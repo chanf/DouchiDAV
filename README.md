@@ -205,10 +205,34 @@ ssh root@路由器IP "opkg install /tmp/luci-app-webdav_*.ipk && /etc/init.d/web
 ## 十、后端核心二进制（hacdias/webdav）
 
 - **版本**：`helper.sh` 的 `CORE_VERSION`（当前 `v5.4.0`，以 [GitHub Releases](https://github.com/hacdias/webdav/releases) 实际为准；改后重新构建）。
-- **架构映射**：`get_arch()` 把 `uname -m` 映射到 hacdias/webdav 的 release 命名（x86_64→amd64、aarch64→arm64、armv7l/armv6l→arm、mips→mips、mipsel→mipsle）。⚠️ mips 大端/小端视固件而定，可能要调整。
-- **下载**：`download_core` 从 `https://github.com/hacdias/webdav/releases/download/<ver>/webdav-linux-<arch>` 下到 `/usr/bin/webdav-go`。
+- **架构映射**：`get_arch()` 把 `uname -m` 映射到 hacdias/webdav 的 release 命名（x86_64→amd64、aarch64→arm64、armv7l→armv7、armv6l→armv6、mips→mips、mipsel→mipsle）。⚠️ mips 大/小端视固件而定，可能要调整。
+- **自动下载**：首次启用服务时，`init.d/webdav` 自动调用 `helper.sh download_core`，从 GitHub Releases 下载 `linux-$arch-webdav.tar.gz` 并解压到 `/usr/bin/webdav-go`。
 - **配置**：`prepare_config` 生成 YAML（`address`/`prefix`/`directory`/`permissions`/`users`）。
 - **替换后端**：若改用 `rclone serve webdav`，只需把 `prepare_config` 换成拼 rclone 命令行参数，其余骨架不变。
+
+### 手动下载安装
+
+若路由器无法访问 GitHub 或自动下载失败，在路由器终端执行：
+
+```bash
+# 先确认架构（J4125/N100 等 x86 路由器用 amd64）
+uname -m
+# 根据输出选择：
+#   x86_64   → amd64
+#   aarch64  → arm64
+#   armv7l   → armv7
+#   armv6l   → armv6
+
+# 以 amd64 为例下载并安装（替换架构名称）：
+arch=amd64
+cd /tmp
+curl -fL "https://github.com/hacdias/webdav/releases/download/v5.4.0/linux-$arch-webdav.tar.gz" -o wd.tar.gz
+tar -xzf wd.tar.gz
+cp webdav /usr/bin/webdav-go
+chmod 0755 /usr/bin/webdav-go
+rm -f wd.tar.gz webdav LICENSE README.md
+/etc/init.d/webdav start
+```
 
 ---
 
