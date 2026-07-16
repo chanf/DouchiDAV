@@ -10,7 +10,7 @@ import shutil
 import re
 
 PKG_NAME = "luci-app-webdav"
-PKG_VERSION = "2.0.0-7"
+PKG_VERSION = "2.0.0-8"
 PKG_ARCH = "all"
 IPK_FILENAME = f"{PKG_NAME}_{PKG_VERSION}_{PKG_ARCH}.ipk"
 
@@ -198,6 +198,11 @@ get_log() {
     logread -l 200 2>/dev/null | grep -i webdav || true
 }
 
+clear_log() {
+    /etc/init.d/logd restart 2>/dev/null
+    echo '{"ok":true}'
+}
+
 test_connection() {
     port=$(uci -q get webdav.config.port) || port=6065
     if curl -fsS -o /dev/null "http://127.0.0.1:$port/" 2>/dev/null; then
@@ -216,8 +221,9 @@ case "$1" in
     get_status)      get_status ;;
     get_version)     get_version ;;
     get_log)         get_log ;;
+    clear_log)       clear_log ;;
     test_connection) test_connection ;;
-    *) echo "Usage: $0 {get_arch|get_core_path|check_core|download_core|prepare_config|get_status|get_version|get_log|test_connection}"; exit 1 ;;
+    *) echo "Usage: $0 {get_arch|get_core_path|check_core|download_core|prepare_config|get_status|get_version|get_log|clear_log|test_connection}"; exit 1 ;;
 esac
 """,
 
@@ -362,12 +368,20 @@ return view.extend({
                 E('p', {}, _('提示：首次启用会自动按架构下载豆豉WebDAV 核心到 /usr/bin/webdav-go，请稍候。'))
             ])
         ];
-        if (data.log) {
-            children.push(E('div', { 'class': 'cbi-section' }, [
-                E('h3', { 'style': 'color:#c00' }, _('运行日志')),
-                E('pre', { 'style': 'background:#f5f5f5;padding:8px;overflow:auto;font-size:12px;white-space:pre-wrap;word-break:break-all' }, data.log)
-            ]));
-        }
+        children.push(E('div', { 'class': 'cbi-section' }, [
+            E('div', { 'style': 'display:flex;align-items:center;gap:10px' }, [
+                E('h3', { 'style': 'color:#c00;margin:0' }, _('运行日志')),
+                E('button', {
+                    'class': 'cbi-button cbi-button-reset',
+                    'click': function() {
+                        fs.exec('/usr/share/webdav/helper.sh', ['clear_log']).then(function() {
+                            window.location.reload();
+                        });
+                    }
+                }, _('清空'))
+            ]),
+            E('pre', { 'style': 'background:#f5f5f5;padding:8px;overflow:auto;font-size:12px;white-space:pre-wrap;word-break:break-all' }, data.log || _('（无日志）'))
+        ]));
         return E('div', { 'class': 'cbi-map' }, children);
     },
     _downloadAndStart: function() {
