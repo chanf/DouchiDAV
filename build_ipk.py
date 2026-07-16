@@ -10,7 +10,7 @@ import shutil
 import re
 
 PKG_NAME = "luci-app-webdav"
-PKG_VERSION = "2.0.0-10"
+PKG_VERSION = "2.0.0-11"
 PKG_ARCH = "all"
 IPK_FILENAME = f"{PKG_NAME}_{PKG_VERSION}_{PKG_ARCH}.ipk"
 
@@ -195,7 +195,7 @@ get_version() {
 }
 
 get_log() {
-    logread -l 200 2>/dev/null | grep -i webdav || true
+    logread -l 100 2>/dev/null | grep -i webdav || true
 }
 
 clear_log() {
