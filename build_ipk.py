@@ -10,7 +10,7 @@ import shutil
 import re
 
 PKG_NAME = "luci-app-webdav"
-PKG_VERSION = "2.0.0-8"
+PKG_VERSION = "2.0.0-9"
 PKG_ARCH = "all"
 IPK_FILENAME = f"{PKG_NAME}_{PKG_VERSION}_{PKG_ARCH}.ipk"
 
@@ -199,7 +199,7 @@ get_log() {
 }
 
 clear_log() {
-    /etc/init.d/logd restart 2>/dev/null
+    logread -z 2>/dev/null || { /etc/init.d/logd restart 2>/dev/null; }
     echo '{"ok":true}'
 }
 
