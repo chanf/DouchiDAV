@@ -10,7 +10,7 @@ import shutil
 import re
 
 PKG_NAME = "luci-app-webdav"
-PKG_VERSION = "2.0.0-12"
+PKG_VERSION = "2.0.0-13"
 PKG_ARCH = "all"
 IPK_FILENAME = f"{PKG_NAME}_{PKG_VERSION}_{PKG_ARCH}.ipk"
 
@@ -295,10 +295,17 @@ return view.extend({
 
         return m.render();
     },
-    handleSaveApply: function() {
+    handleSave: function(ev) {
         var view = this;
         if (!view.map.validate()) return;
-        return view.map.save(null, true).then(function() {
+        return view.map.save().then(function() {
+            return fs.exec('/etc/init.d/webdav', ['restart']);
+        });
+    },
+    handleSaveApply: function(ev) {
+        var view = this;
+        if (!view.map.validate()) return;
+        return view.map.save().then(function() {
             return fs.exec('/etc/init.d/webdav', ['restart']);
         });
     }
