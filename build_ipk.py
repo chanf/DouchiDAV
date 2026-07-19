@@ -10,7 +10,7 @@ import shutil
 import re
 
 PKG_NAME = "luci-app-webdav"
-PKG_VERSION = "2.0.0-13"
+PKG_VERSION = "2.0.0-15"
 PKG_ARCH = "all"
 IPK_FILENAME = f"{PKG_NAME}_{PKG_VERSION}_{PKG_ARCH}.ipk"
 
@@ -112,7 +112,7 @@ service_triggers() {
     "root/usr/share/webdav/helper.sh": """#!/bin/sh
 # 豆豉WebDAV 后端：case 分发。配置读取用 uci -q get（无需 source 库）。
 # JSON 输出统一用单引号包裹 + 内部双引号字面量 + 变量拼接，避开双重转义。
-CORE_VERSION="v5.4.0"
+CORE_VERSION="v5.14.0"
 PKG_VERSION="__PKG_VERSION__"
 CORE_PATH="/usr/bin/webdav-go"
 GITHUB="https://github.com/hacdias/webdav/releases/download"
