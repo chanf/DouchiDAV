@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# 豆豉WebDAV 打包脚本：单源真相 src_files → 可复现 .ipk
+# 水杉WebDAV 打包脚本：单源真相 src_files → 可复现 .ipk
 # 所有交付文件都在下面 src_files 字典里（key=打包相对路径，value=文件内容）。
 # 改任何交付文件就改这里，然后 `python3 build_ipk.py`。勿手编 src/（会被覆盖）。
 # 骨架（四函数 + main）移植自 luci-app-mihomo，仅替换业务层 + 路径中的 mihomo→webdav。
@@ -9,21 +9,21 @@ import io
 import shutil
 import re
 
-PKG_NAME = "luci-app-webdav"
-PKG_VERSION = "2.0.0-16"
+PKG_NAME = "luci-app-sswebdav"
+PKG_VERSION = "2.0.0-17"
 PKG_ARCH = "all"
 IPK_FILENAME = f"{PKG_NAME}_{PKG_VERSION}_{PKG_ARCH}.ipk"
 
 src_files = {
     # ===================== CONTROL/ =====================
-    "CONTROL/control": """Package: luci-app-webdav
+    "CONTROL/control": """Package: luci-app-sswebdav
 Version: 2.0.0-1
 Depends: luci-base, curl
 Architecture: all
 Maintainer: feng
 Section: luci
 Priority: optional
-Description: 豆豉WebDAV - Lightweight WebDAV server (hacdias/webdav) for iStoreOS / OpenWrt
+Description: 水杉WebDAV - Lightweight WebDAV server (hacdias/webdav) for iStoreOS / OpenWrt
 """,
     "CONTROL/postinst": """#!/bin/sh
 if [ -z "$IPKG_INSTROOT" ]; then
@@ -110,7 +110,7 @@ service_triggers() {
 
     # ===================== root/usr/share/webdav/ =====================
     "root/usr/share/webdav/helper.sh": """#!/bin/sh
-# 豆豉WebDAV 后端：case 分发。配置读取用 uci -q get（无需 source 库）。
+# 水杉WebDAV 后端：case 分发。配置读取用 uci -q get（无需 source 库）。
 # JSON 输出统一用单引号包裹 + 内部双引号字面量 + 变量拼接，避开双重转义。
 CORE_VERSION="v5.14.0"
 PKG_VERSION="__PKG_VERSION__"
@@ -222,9 +222,9 @@ esac
 """,
 
     # ===================== LuCI 菜单 / rpcd 权限 =====================
-    "root/usr/share/luci/menu.d/luci-app-webdav.json": """{
+    "root/usr/share/luci/menu.d/luci-app-sswebdav.json": """{
     "admin/services/webdav": {
-        "title": "豆豉WebDAV",
+        "title": "水杉WebDAV",
         "order": 60,
         "action": { "type": "firstchild" }
     },
@@ -240,9 +240,9 @@ esac
     }
 }
 """,
-    "root/usr/share/rpcd/acl.d/luci-app-webdav.json": """{
+    "root/usr/share/rpcd/acl.d/luci-app-sswebdav.json": """{
     "unauthenticated": {
-        "description": "豆豉WebDAV helper access",
+        "description": "水杉WebDAV helper access",
         "read": {
             "ubus": { "service": ["list"] }
         },
@@ -268,7 +268,7 @@ esac
 return view.extend({
     render: function() {
         var m, s, o;
-        m = new form.Map('webdav', _('豆豉WebDAV 设置'), _('配置豆豉WebDAV 文件共享服务（后端 hacdias/webdav）。'));
+        m = new form.Map('webdav', _('水杉WebDAV 设置'), _('配置水杉WebDAV 文件共享服务（后端 hacdias/webdav）。'));
         this.map = m;
 
         s = m.section(form.TypedSection, 'webdav', _('常规设置'));
@@ -357,7 +357,7 @@ return view.extend({
             }
         }
         var children = [
-            E('h2', { 'class': 'title' }, _('豆豉WebDAV 状态')),
+            E('h2', { 'class': 'title' }, _('水杉WebDAV 状态')),
             E('div', { 'class': 'cbi-section' }, [
                 E('p', _('版本：') + (data.version || '-')),
                 E('p', _('状态：') + status),
@@ -366,7 +366,7 @@ return view.extend({
                 E('p', _('访问地址：http://') + location.hostname + ':' + (data.port || '6065'))
             ].concat(diag)),
             E('div', { 'class': 'cbi-section' }, [
-                E('p', {}, _('提示：首次启用会自动按架构下载豆豉WebDAV 核心到 /usr/bin/webdav-go，请稍候。'))
+                E('p', {}, _('提示：首次启用会自动按架构下载水杉WebDAV 核心到 /usr/bin/webdav-go，请稍候。'))
             ])
         ];
         if (data.log) {
@@ -521,7 +521,7 @@ def main():
     src_dir = os.path.join(workspace, "src")
     build_dir = os.path.join(workspace, "build")
     dist_dir = os.path.join(workspace, "dist")
-    print("Initializing source tree for luci-app-webdav...")
+    print("Initializing source tree for luci-app-sswebdav...")
     create_source_tree(src_dir)
     if os.path.exists(build_dir):
         shutil.rmtree(build_dir)

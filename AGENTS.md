@@ -1,4 +1,4 @@
-# 豆豉WebDAV — OpenWrt LuCI app for hacdias/webdav
+# 水杉WebDAV — OpenWrt LuCI app for hacdias/webdav
 
 ## Source of truth
 
@@ -21,7 +21,7 @@ python3 build_ipk.py          # auto-increments version, regenerate src/ → dis
 - **Core**: `hacdias/webdav` Go binary (`CORE_VERSION=v5.4.0`), auto-downloaded per arch (`webdav-linux-$arch`), installed to `/usr/bin/webdav-go`.
 - **UCI config**: `/etc/config/webdav` — options: `enabled`, `port` (default 6065), `root_path` (default /mnt/sata1), `username`, `password`, `read_only`, `prefix`.
 - **LuCI views**: plain JS (no npm), LuCI `form.Map` + `fs.exec` patterns — pure client-side, calls `helper.sh` via ubus/rpcd.
-- **ACL**: `root/usr/share/rpcd/acl.d/luci-app-webdav.json` — unauthenticated access to uci + helper.sh exec + logread.
+- **ACL**: `root/usr/share/rpcd/acl.d/luci-app-sswebdav.json` — unauthenticated access to uci + helper.sh exec + logread.
 
 ## Key conventions
 

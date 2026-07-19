@@ -8,7 +8,7 @@ ROUTER_USER="root"
 ROUTER_PATH="/tmp/"
 
 # 1. 找最新构建包（前缀 webdav）
-LATEST_IPK=$(ls -t dist/luci-app-webdav_*.ipk 2>/dev/null | head -n 1)
+LATEST_IPK=$(ls -t dist/luci-app-sswebdav_*.ipk 2>/dev/null | head -n 1)
 [ -z "$LATEST_IPK" ] && { echo "错误：未找到 ipk，请先 python3 build_ipk.py"; exit 1; }
 IPK_BASENAME=$(basename "$LATEST_IPK")
 echo "部署：$IPK_BASENAME -> $ROUTER_USER@$ROUTER_IP"

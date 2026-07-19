@@ -1,6 +1,6 @@
-# 豆豉WebDAV
+# 水杉WebDAV
 
-iStoreOS / OpenWrt 上的 **豆豉WebDAV 文件共享 LuCI 应用**。后端采用 [hacdias/webdav](https://github.com/hacdias/webdav)（Go 单二进制），前端为 LuCI 配置页 + 运行状态页，服务由 procd 守护、崩溃自动重启。核心二进制按 CPU 架构首次启用时从 GitHub 下载，包本体只含脚本/配置/JS，因此体积小、`Architecture: all`、可随时升级核心。
+iStoreOS / OpenWrt 上的 **水杉WebDAV 文件共享 LuCI 应用**。后端采用 [hacdias/webdav](https://github.com/hacdias/webdav)（Go 单二进制），前端为 LuCI 配置页 + 运行状态页，服务由 procd 守护、崩溃自动重启。核心二进制按 CPU 架构首次启用时从 GitHub 下载，包本体只含脚本/配置/JS，因此体积小、`Architecture: all`、可随时升级核心。
 
 > 本项目骨架（构建系统 + CONTROL + 部署脚本）移植自 `luci-app-mihomo`，仅替换业务层。维护者如已熟悉 mihomo，可快速上手——详见文末「与 luci-app-mihomo 的关系」。
 
@@ -57,7 +57,7 @@ LuCI dashboard.js ──rpcd──▶ helper.sh get_status 返回 JSON（进程/
 ### 本仓库（源）
 
 ```
-luci-app-webdav/
+luci-app-sswebdav/
 ├── build_ipk.py        # 单源真相：src_files + 四个打包函数 + main。改文件改这里
 ├── deploy.sh           # 自动部署：scp 上传 ipk → opkg install → 重启 webdav
 ├── .gitignore          # 忽略 build/ dist/ src/（纯产物）
@@ -80,8 +80,8 @@ root/
 ├── etc/config/webdav                         # UCI 默认配置
 ├── etc/init.d/webdav                         # procd 守护脚本
 ├── usr/share/webdav/helper.sh                # 单体后端（case 分发 7 子命令）
-├── usr/share/luci/menu.d/luci-app-webdav.json    # LuCI 菜单注册
-├── usr/share/rpcd/acl.d/luci-app-webdav.json     # rpcd 权限授予（前端调 helper.sh 的依据）
+├── usr/share/luci/menu.d/luci-app-sswebdav.json    # LuCI 菜单注册
+├── usr/share/rpcd/acl.d/luci-app-sswebdav.json     # rpcd 权限授予（前端调 helper.sh 的依据）
 └── www/luci-static/resources/view/webdav/
     ├── settings.js                           # 设置页（UCI 表单）
     └── dashboard.js                          # 状态页（调 helper.sh get_status）
@@ -92,18 +92,18 @@ root/
 ## 五、快速开始（构建 + 部署）
 
 ```bash
-python3 build_ipk.py     # 产出 dist/luci-app-webdav_<ver>_all.ipk（每次自增版本号）
+python3 build_ipk.py     # 产出 dist/luci-app-sswebdav_<ver>_all.ipk（每次自增版本号）
 # 改 deploy.sh 里 PASSWORD，然后：
 ./deploy.sh              # scp 上传 + opkg install + /etc/init.d/webdav restart
 ```
 
 或手动部署：
 ```bash
-scp dist/luci-app-webdav_*.ipk root@路由器IP:/tmp/
-ssh root@路由器IP "opkg install /tmp/luci-app-webdav_*.ipk && /etc/init.d/webdav restart"
+scp dist/luci-app-sswebdav_*.ipk root@路由器IP:/tmp/
+ssh root@路由器IP "opkg install /tmp/luci-app-sswebdav_*.ipk && /etc/init.d/webdav restart"
 ```
 
-装好后：LuCI → 服务 → **豆豉WebDAV** → 服务设置 → 启用、配端口/根目录/账号密码 → 保存并应用（首次启用会按架构下载核心，用 `logread` 看进度）。访问 `http://路由器IP:端口/`。
+装好后：LuCI → 服务 → **水杉WebDAV** → 服务设置 → 启用、配端口/根目录/账号密码 → 保存并应用（首次启用会按架构下载核心，用 `logread` 看进度）。访问 `http://路由器IP:端口/`。
 
 > 依赖：仅 `luci-base` + `curl`（下载核心/调 API 用）。无需 nftables/kmod。
 
@@ -154,8 +154,8 @@ ssh root@路由器IP "opkg install /tmp/luci-app-webdav_*.ipk && /etc/init.d/web
 配置读取用 `uci -q get webdav.config.xxx`（**无需 source 任何库**，比 init.d 的 `config_load` 更省事）。**JSON 输出统一用「单引号包裹 + 内部双引号字面量 + 变量拼接」**，如 `echo '{"ok":true,"path":"'"$CORE_PATH"'"}'`——避开 shell / Python 双重转义，详见「关键约定」。
 
 ### LuCI 菜单与 rpcd 权限（两个 JSON）
-- `menu.d/luci-app-webdav.json`：注册「服务 → 豆豉WebDAV」菜单 + 两个子页（4 空格缩进）。
-- `acl.d/luci-app-webdav.json`：**rpcd 权限授予**，是前端 JS 能调 helper.sh / init.d / logread 的依据（Tab 缩进）。漏写会导致前端 `fs.exec` 被拦截报权限错误。
+- `menu.d/luci-app-sswebdav.json`：注册「服务 → 水杉WebDAV」菜单 + 两个子页（4 空格缩进）。
+- `acl.d/luci-app-sswebdav.json`：**rpcd 权限授予**，是前端 JS 能调 helper.sh / init.d / logread 的依据（Tab 缩进）。漏写会导致前端 `fs.exec` 被拦截报权限错误。
 
 ### settings.js / dashboard.js（纯 JS 视图）
 无 npm、无编译。`settings.js` 用 `form.Map('webdav')` + `m.restart = 'webdav'`（保存后重启服务）。`dashboard.js` 用 `fs.exec('/usr/share/webdav/helper.sh', ['get_status'])` 拿 JSON 渲染状态。
@@ -255,9 +255,9 @@ rm -f wd.tar.gz webdav LICENSE README.md
 
 | 现象 | 排查 |
 |------|------|
-| LuCI 看不到「豆豉WebDAV」菜单 | postinst 没清缓存/重启 rpcd → 手动 `/etc/init.d/rpcd restart`；或 `menu.d` JSON 路径/视图 path 不对应 |
+| LuCI 看不到「水杉WebDAV」菜单 | postinst 没清缓存/重启 rpcd → 手动 `/etc/init.d/rpcd restart`；或 `menu.d` JSON 路径/视图 path 不对应 |
 | 服务起不来 | `logread` 看日志；`ls -l /usr/bin/webdav-go` 看核心是否下载成功；`ls -l /usr/share/webdav/helper.sh` 看是否可执行 |
-| 前端调 helper.sh 报权限错误 | `acl.d` JSON 漏授权 → 检查 `/usr/share/rpcd/acl.d/luci-app-webdav.json` 是否含 helper.sh/init.d/logread 的 exec |
+| 前端调 helper.sh 报权限错误 | `acl.d` JSON 漏授权 → 检查 `/usr/share/rpcd/acl.d/luci-app-sswebdav.json` 是否含 helper.sh/init.d/logread 的 exec |
 | 核心下载失败 | 路由器能否访问 GitHub；或手动下二进制放到 `/usr/bin/webdav-go` + `chmod 0755` |
 | 大文件仍上传失败 | 确认客户端连的是本插件端口（默认 **6065**），不是旧的 go-webdav 端口（如 6086） |
 | 升级后用户配置丢失 | `conffiles` 漏登记 → 检查 `CONTROL/conffiles` 是否含 `/etc/config/webdav` |
@@ -282,7 +282,7 @@ rm -f wd.tar.gz webdav LICENSE README.md
 
 | mihomo | webdav | 说明 |
 |--------|--------|------|
-| `PKG_NAME = "luci-app-mihomo"` | `"luci-app-webdav"` | 顶部常量 |
+| `PKG_NAME = "luci-app-mihomo"` | `"luci-app-sswebdav"` | 顶部常量 |
 | `/etc/config/mihomo` | `/etc/config/webdav` | UCI 配置 |
 | `/etc/init.d/mihomo` | `/etc/init.d/webdav` | procd 脚本 |
 | `/usr/share/mihomo/helper.sh` | `/usr/share/webdav/helper.sh` | 后端（注意 `make_tar_gz` 里的路径判断也要改） |
@@ -307,10 +307,10 @@ rm -f wd.tar.gz webdav LICENSE README.md
 - [ ] 新增脚本类文件在 `create_source_tree` + `make_tar_gz` 两处都给了 `0o755`
 - [ ] `menu.d` JSON 的 `path` 与视图文件路径对应（`path: webdav/xxx` ↔ `view/webdav/xxx.js`）
 - [ ] `acl.d` JSON 授权了 helper.sh / init.d / logread 的 exec
-- [ ] `PKG_NAME = "luci-app-webdav"`，`PKG_VERSION` 自增正常，**勿重命名该变量**
+- [ ] `PKG_NAME = "luci-app-sswebdav"`，`PKG_VERSION` 自增正常，**勿重命名该变量**
 - [ ] `.gitignore` 忽略 `build/` `dist/` `src/`
 - [ ] `python3 build_ipk.py` 成功产出 `dist/*.ipk`
-- [ ] `./deploy.sh` 安装到软路由，LuCI 能看到「豆豉WebDAV」菜单、启停正常、大文件可上传
+- [ ] `./deploy.sh` 安装到软路由，LuCI 能看到「水杉WebDAV」菜单、启停正常、大文件可上传
 
 ---
 
