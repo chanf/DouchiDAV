@@ -10,7 +10,7 @@ import shutil
 import re
 
 PKG_NAME = "luci-app-webdav"
-PKG_VERSION = "2.0.0-15"
+PKG_VERSION = "2.0.0-16"
 PKG_ARCH = "all"
 IPK_FILENAME = f"{PKG_NAME}_{PKG_VERSION}_{PKG_ARCH}.ipk"
 
